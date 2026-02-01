@@ -1,0 +1,436 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8" (click)="closeCardDropdown()">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading && user) {
+    <!-- Header -->
+    <div class="mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Editar Usuário</h1>
+      <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Atualize as informações do usuário</p>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+      <form (ngSubmit)="onSubmit()" class="space-y-4 sm:space-y-6">
+        <!-- ID (Read-only) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+            ID
+          </label>
+          <div class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+            #{{ user.id }}
+          </div>
+        </div>
+
+        <!-- Nome -->
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+            Nome Completo <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="userData.name"
+            required
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all placeholder:font-thin placeholder:text-gray-400"
+            placeholder="João Silva"
+          />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="userData.email"
+            required
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all placeholder:font-thin placeholder:text-gray-400"
+            placeholder="joao@example.com"
+          />
+        </div>
+
+        <!-- Role -->
+        <div>
+          <label for="role" class="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+            Tipo de Usuário <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="role"
+            name="role"
+            [(ngModel)]="userData.role"
+            required
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all bg-white"
+          >
+            <option value="USER">Usuário</option>
+            <option value="ADMIN">Administrador</option>
+          </select>
+        </div>
+
+        <!-- Mensagem de Sucesso -->
+        @if (successMessage) {
+          <div class="bg-green-50 border border-green-200 text-green-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
+            {{ successMessage }}
+          </div>
+        }
+
+        <!-- Mensagem de Erro -->
+        @if (errorMessage) {
+          <div class="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <!-- Botões -->
+        <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4 sm:pt-6">
+          <button
+            type="button"
+            (click)="goBack()"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSaving"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-medium text-white bg-cyan-500 rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            @if (isSaving) {
+              <span class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Salvando...
+              </span>
+            } @else {
+              Salvar Alterações
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- User Cards Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mt-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <div class="flex items-center justify-between sm:justify-start gap-4">
+          <h2 class="text-xl font-semibold text-gray-900">Cartões do Usuário</h2>
+          <span class="text-sm text-gray-600">{{ totalElements }} cartão(ões)</span>
+        </div>
+        <button
+          (click)="openCardModal()"
+          class="inline-flex items-center justify-center px-4 py-2 bg-cyan-500 text-white text-sm font-medium rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+        >
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Cadastrar Cartão
+        </button>
+      </div>
+
+      @if (userCards.length === 0 && totalElements === 0) {
+        <div class="text-center py-12">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum cartão encontrado</h3>
+          <p class="mt-1 text-sm text-gray-500">Este usuário ainda não possui cartões cadastrados.</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" (click)="closeCardDropdown()">
+          @for (card of userCards; track card.number) {
+            <div
+              class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative"
+              [class.bg-gray-50]="!card.status"
+              [class.opacity-60]="!card.status"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <h3 class="font-semibold text-gray-900">{{ card.title }}</h3>
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                      [class.bg-green-100]="card.status"
+                      [class.text-green-800]="card.status"
+                      [class.bg-red-100]="!card.status"
+                      [class.text-red-800]="!card.status"
+                    >
+                      {{ card.status ? 'Ativo' : 'Inativo' }}
+                    </span>
+                  </div>
+                  
+                  <p class="text-sm text-gray-600 mb-1">
+                    <span class="font-medium">Número:</span> {{ card.number }}
+                  </p>
+                  
+                  <p class="text-sm text-gray-600">
+                    <span class="font-medium">Tipo:</span> {{ getCardTypeLabel(card.type) }}
+                  </p>
+                </div>
+
+                <!-- Botão de Ações -->
+                <app-action-dropdown
+                  [isOpen]="openDropdownCardNumber === card.number"
+                  [actions]="getCardActions(card)"
+                  [toggleStatus]="card.status"
+                  (toggleOpen)="toggleCardDropdown(card.number)"
+                  (actionClick)="onCardAction(card.number, $event)"
+                ></app-action-dropdown>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Paginação -->
+        @if (totalPages > 1) {
+          <div class="bg-gray-50 px-4 sm:px-6 py-4 border-t border-gray-200 mt-6 -mx-4 sm:-mx-6 lg:-mx-8 rounded-b-xl">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                Mostrando {{ userCards.length > 0 ? (currentPage * pageSize + 1) : 0 }} até
+                {{ currentPage * pageSize + userCards.length }} de {{ totalElements }} cartão(ões)
+              </div>
+              <div class="flex items-center space-x-1 sm:space-x-2">
+                <!-- Botão Anterior -->
+                <button
+                  (click)="previousPage()"
+                  [disabled]="currentPage === 0"
+                  class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+
+                <!-- Números de página -->
+                @if (totalPages > 0) {
+                  @if (currentPage > 2 && totalPages > 5) {
+                    <button
+                      (click)="goToPage(0)"
+                      class="hidden sm:inline-flex px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                    >
+                      1
+                    </button>
+                    @if (currentPage > 3) {
+                      <span class="hidden sm:inline px-1 sm:px-2 text-gray-500">...</span>
+                    }
+                  }
+
+                  @for (page of getPageNumbers(); track page) {
+                    <button
+                      (click)="goToPage(page)"
+                      [class.bg-cyan-500]="page === currentPage"
+                      [class.text-white]="page === currentPage"
+                      [class.border-cyan-500]="page === currentPage"
+                      [class.text-gray-700]="page !== currentPage"
+                      [class.bg-white]="page !== currentPage"
+                      [class.border-gray-300]="page !== currentPage"
+                      class="px-2 sm:px-3 py-2 text-sm font-medium border rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors min-w-[2.5rem] sm:min-w-0"
+                    >
+                      {{ page + 1 }}
+                    </button>
+                  }
+
+                  @if (currentPage < totalPages - 3 && totalPages > 5) {
+                    @if (currentPage < totalPages - 4) {
+                      <span class="hidden sm:inline px-1 sm:px-2 text-gray-500">...</span>
+                    }
+                    <button
+                      (click)="goToPage(totalPages - 1)"
+                      class="hidden sm:inline-flex px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                    >
+                      {{ totalPages }}
+                    </button>
+                  }
+                }
+
+                <!-- Botão Próximo -->
+                <button
+                  (click)="nextPage()"
+                  [disabled]="currentPage >= totalPages - 1"
+                  class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- Modal de Cadastro de Cartão -->
+  @if (showCardModal) {
+    <div
+      class="fixed inset-0 z-50 overflow-y-auto"
+      (click)="closeCardModal()"
+      role="dialog"
+      aria-modal="true"
+    >
+      <!-- Overlay -->
+      <div class="fixed inset-0 bg-black/60 bg-opacity-50 transition-opacity"></div>
+
+      <!-- Modal Content -->
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div
+          class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+          (click)="$event.stopPropagation()"
+        >
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-900">Cadastrar Novo Cartão</h3>
+            <button
+              (click)="closeCardModal()"
+              class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-lg p-1"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Form -->
+          <form (ngSubmit)="onCreateCard()" class="space-y-4">
+            <!-- Título -->
+            <div>
+              <label for="cardTitle" class="block text-sm font-medium text-gray-700 mb-1.5">
+                Título do Cartão <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="cardTitle"
+                name="cardTitle"
+                [(ngModel)]="cardForm.title"
+                required
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all placeholder:font-thin placeholder:text-gray-400"
+                placeholder="Ex: Cartão Principal"
+              />
+            </div>
+
+            <!-- Tipo -->
+            <div>
+              <label for="cardType" class="block text-sm font-medium text-gray-700 mb-1.5">
+                Tipo de Cartão <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="cardType"
+                name="cardType"
+                [(ngModel)]="cardForm.type"
+                required
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all bg-white"
+              >
+                <option value="COMUM">Comum</option>
+                <option value="ESTUDANTE">Estudante</option>
+                <option value="TRABALHADOR">Trabalhador</option>
+              </select>
+            </div>
+
+            <!-- Mensagem de Erro -->
+            @if (cardFormError) {
+              <div class="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
+                {{ cardFormError }}
+              </div>
+            }
+
+            <!-- Botões -->
+            <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
+              <button
+                type="button"
+                (click)="closeCardModal()"
+                class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                [disabled]="isCreatingCard"
+                class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-medium text-white bg-cyan-500 rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                @if (isCreatingCard) {
+                  <span class="flex items-center justify-center">
+                    <svg class="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Criando...
+                  </span>
+                } @else {
+                  Criar Cartão
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Confirmação Genérico -->
+  <app-confirm-modal
+    [isOpen]="showConfirmModal"
+    [title]="confirmModalTitle"
+    [message]="confirmModalMessage"
+    [danger]="confirmModalDanger"
+    confirmText="Confirmar"
+    cancelText="Cancelar"
+    (confirm)="onConfirmRemoveCard()"
+    (cancel)="onCancelConfirmModal()"
+  ></app-confirm-modal>
+</div>

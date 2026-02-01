@@ -1,0 +1,5 @@
+/* High z-index for dropdown menu to appear above scrolling tables */
+.user-dropdown-menu {
+  position: fixed !important;
+  z-index: 9999 !important;
+}

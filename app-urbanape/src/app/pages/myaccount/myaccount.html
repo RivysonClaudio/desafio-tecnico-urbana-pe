@@ -1,0 +1,149 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8" (click)="closeCardDropdown()">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading && currentUser) {
+    <!-- Header -->
+    <div class="mb-4 sm:mb-6 lg:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Minha Conta</h1>
+      <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Gerencie suas informações e cartões</p>
+    </div>
+
+    <!-- User Information Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Informações Pessoais</h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <!-- Nome -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Nome</label>
+          <p class="text-sm sm:text-base text-gray-900 font-medium wrap-break-word">{{ currentUser.name }}</p>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Email</label>
+          <p class="text-sm sm:text-base text-gray-900 font-medium break-all">{{ currentUser.email }}</p>
+        </div>
+
+        <!-- Role -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">Tipo de Conta</label>
+          <span
+            class="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium"
+            [class.bg-blue-100]="currentUser.role === 'ADMIN'"
+            [class.text-blue-800]="currentUser.role === 'ADMIN'"
+            [class.bg-gray-100]="currentUser.role === 'USER'"
+            [class.text-gray-800]="currentUser.role === 'USER'"
+          >
+            {{ getRoleLabel(currentUser.role) }}
+          </span>
+        </div>
+
+        <!-- ID -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-gray-600 mb-1">ID</label>
+          <p class="text-sm sm:text-base text-gray-900 font-medium">#{{ currentUser.id }}</p>
+        </div>
+      </div>
+
+      @if (currentUser.createdAt) {
+        <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+          <p class="text-xs sm:text-sm text-gray-500">
+            Conta criada em: {{ currentUser.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- My Cards Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Meus Cartões</h2>
+        <span class="text-xs sm:text-sm text-gray-600">{{ myCards.length }} cartão(ões)</span>
+      </div>
+
+      @if (myCards.length === 0) {
+        <div class="text-center py-8 sm:py-12">
+          <svg
+            class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum cartão encontrado</h3>
+          <p class="mt-1 text-xs sm:text-sm text-gray-500">Você ainda não possui cartões cadastrados.</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          @for (card of myCards; track card.number) {
+            <div
+              class="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
+              [class.bg-gray-50]="!card.status"
+              [class.opacity-60]="!card.status"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 class="text-sm sm:text-base font-semibold text-gray-900 truncate">{{ card.title }}</h3>
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium shrink-0"
+                      [class.bg-green-100]="card.status"
+                      [class.text-green-800]="card.status"
+                      [class.bg-red-100]="!card.status"
+                      [class.text-red-800]="!card.status"
+                    >
+                      {{ card.status ? 'Ativo' : 'Inativo' }}
+                    </span>
+                  </div>
+                  
+                  <p class="text-xs sm:text-sm text-gray-600 mb-1">
+                    <span class="font-medium">Número:</span> {{ card.number }}
+                  </p>
+                  
+                  <p class="text-xs sm:text-sm text-gray-600">
+                    <span class="font-medium">Tipo:</span> {{ getCardTypeLabel(card.type) }}
+                  </p>
+                </div>
+
+                @if (getCardActions(card).length > 0) {
+                  <app-action-dropdown
+                    [isOpen]="openDropdownCardNumber === card.number"
+                    [actions]="getCardActions(card)"
+                    [toggleStatus]="card.status"
+                    (toggleOpen)="toggleCardDropdown(card.number)"
+                    (actionClick)="onCardAction(card.number, $event)"
+                  ></app-action-dropdown>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal de Confirmação -->
+  <app-confirm-modal
+    [isOpen]="showConfirmModal"
+    [title]="confirmModalTitle"
+    [message]="confirmModalMessage"
+    [danger]="confirmModalDanger"
+    confirmText="Remover"
+    cancelText="Cancelar"
+    (confirm)="onConfirmRemoveCard()"
+    (cancel)="onCancelConfirmModal()"
+  ></app-confirm-modal>
+</div>

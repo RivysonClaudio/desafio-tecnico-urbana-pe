@@ -1,0 +1,17 @@
+/* Ensure dropdown appears above table scroll containers */
+:host {
+  position: relative;
+  z-index: 1;
+}
+
+/* High z-index for dropdown menu to appear above scrolling tables */
+/* Using !important to override Tailwind classes */
+.dropdown-menu {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* Force fixed positioning even if Tailwind tries to override */
+div.dropdown-menu {
+  position: fixed !important;
+}

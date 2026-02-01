@@ -1,0 +1,65 @@
+<div class="relative inline-block text-left" (click)="$event.stopPropagation()">
+  <button
+    #triggerButton
+    type="button"
+    (click)="onToggleClick()"
+    class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+    [attr.aria-expanded]="isOpen"
+    aria-haspopup="true"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+      />
+    </svg>
+  </button>
+
+  @if (isOpen) {
+    <div
+      #dropdownMenu
+      class="dropdown-menu w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      [style.top.px]="dropdownPosition.top"
+      [style.right.px]="dropdownPosition.right"
+      [style.position]="'fixed'"
+      role="menu"
+      aria-orientation="vertical"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="py-1" role="none">
+        @for (action of actions; track action.action) {
+          <button
+            (click)="onActionClick(action.action)"
+            class="flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
+            [class.text-gray-700]="!action.danger"
+            [class.text-red-600]="action.danger"
+            role="menuitem"
+          >
+            <svg
+              class="w-4 h-4 mr-3"
+              [class.text-cyan-600]="action.icon === 'edit' && !action.danger"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                [attr.d]="getIconPath(action)"
+              />
+            </svg>
+            @if (action.action === 'toggle' && toggleStatus !== undefined) {
+              {{ toggleStatus ? 'Inativar' : 'Ativar' }}
+            } @else {
+              {{ action.label }}
+            }
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

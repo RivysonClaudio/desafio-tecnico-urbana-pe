@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: urbana-pe-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./api-urbanape/src/main/resources/db:/docker-entrypoint-initdb.d
+    networks:
+      - urbana-pe-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Spring Boot
+  api:
+    build:
+      context: ./api-urbanape
+      dockerfile: Dockerfile
+    container_name: urbana-pe-api
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO}
+      JPA_SHOW_SQL: ${JPA_SHOW_SQL}
+      FLYWAY_ENABLED: ${FLYWAY_ENABLED}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${API_PORT}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - urbana-pe-network
+    restart: unless-stopped
+
+  # Frontend Angular com Nginx
+  app:
+    build:
+      context: ./app-urbanape
+      dockerfile: Dockerfile
+    container_name: urbana-pe-app
+    ports:
+      - "${APP_PORT}:80"
+    depends_on:
+      - api
+    networks:
+      - urbana-pe-network
+    restart: unless-stopped
+
+  # Nginx como servidor web principal (opcional - pode usar apenas o app)
+  nginx:
+    image: nginx:alpine
+    container_name: urbana-pe-nginx
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+      - api
+    networks:
+      - urbana-pe-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  urbana-pe-network:
+    driver: bridge

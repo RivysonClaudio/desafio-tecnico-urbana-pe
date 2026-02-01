@@ -1,0 +1,31 @@
+<div class="flex flex-col h-dvh">
+  <!-- Overlay -->
+  @if (isMenuOpen) {
+    <div
+      class="fixed inset-0 bg-black/20 z-40"
+      (click)="closeMenu()"
+    ></div>
+  }
+
+  <!-- Main Container -->
+  <app-header
+    [title]="pageTitle"
+    [showUserInfo]="true"
+    [showMenuButton]="true"
+    [currentUser]="currentUser"
+    (toggleMenu)="toggleMenu()"
+    (logout)="logout()"
+  ></app-header>
+  <app-menu
+    [isOpen]="isMenuOpen"
+    [items]="menuItems"
+    (closeMenu)="closeMenu()"
+    (logout)="logout()"
+  ></app-menu>
+  <div class="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+      <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+  </div>
+  <main class="flex-1 overflow-y-auto bg-gray-100">
+    <router-outlet></router-outlet>
+  </main>
+</div>

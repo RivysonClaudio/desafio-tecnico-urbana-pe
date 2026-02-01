@@ -1,0 +1,102 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading) {
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Meus Cartões</h1>
+      <p class="mt-2 text-gray-600">Gerencie seus cartões de ônibus</p>
+    </div>
+
+    <!-- Cards Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Cartões Cadastrados</h2>
+        <span class="text-sm text-gray-600">{{ myCards.length }} cartão(ões)</span>
+      </div>
+
+      @if (myCards.length === 0) {
+        <div class="text-center py-12">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum cartão encontrado</h3>
+          <p class="mt-1 text-sm text-gray-500">Você ainda não possui cartões cadastrados.</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (card of myCards; track card.number) {
+            <div
+              class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              [class.bg-gray-50]="!card.status"
+              [class.opacity-60]="!card.status"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <h3 class="font-semibold text-gray-900">{{ card.title }}</h3>
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                      [class.bg-green-100]="card.status"
+                      [class.text-green-800]="card.status"
+                      [class.bg-red-100]="!card.status"
+                      [class.text-red-800]="!card.status"
+                    >
+                      {{ card.status ? 'Ativo' : 'Inativo' }}
+                    </span>
+                  </div>
+                  
+                  <p class="text-sm text-gray-600 mb-1">
+                    <span class="font-medium">Número:</span> {{ card.number }}
+                  </p>
+                  
+                  <p class="text-sm text-gray-600 mb-1">
+                    <span class="font-medium">Tipo:</span> {{ getCardTypeLabel(card.type) }}
+                  </p>
+
+                  @if (card.createdAt) {
+                    <p class="text-xs text-gray-500 mt-2">
+                      Criado em: {{ card.createdAt | date: 'dd/MM/yyyy' }}
+                    </p>
+                  }
+                </div>
+
+                <div class="ml-4">
+                  <svg
+                    class="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

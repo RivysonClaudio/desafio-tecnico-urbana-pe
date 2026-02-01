@@ -1,0 +1,278 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" (click)="closeDropdown()">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading) {
+    <!-- Header -->
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Cartões</h1>
+          <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Gerencie todos os cartões do sistema</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      @if (cards.length === 0) {
+        <div class="text-center py-12">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum cartão encontrado</h3>
+          <p class="mt-1 text-sm text-gray-500">Não há cartões cadastrados no sistema.</p>
+        </div>
+      } @else {
+        <!-- Mobile: Cards View -->
+        <div class="block md:hidden space-y-3 p-4">
+          @for (card of cards; track card.number) {
+            <div 
+              class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md" 
+              [class.bg-gray-50]="!card.status" 
+              [class.opacity-60]="!card.status"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <!-- Título do Cartão -->
+                  <h3 class="text-base font-semibold text-gray-900 leading-tight mb-2">{{ card.title }}</h3>
+                  <!-- Número -->
+                  <div class="mb-2">
+                    <span class="text-sm font-medium text-gray-600">#{{ card.number }}</span>
+                  </div>
+                  <!-- Tags -->
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span
+                      class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                      [class.bg-green-100]="card.status"
+                      [class.text-green-800]="card.status"
+                      [class.bg-red-100]="!card.status"
+                      [class.text-red-800]="!card.status"
+                    >
+                      {{ card.status ? 'Ativo' : 'Inativo' }}
+                    </span>
+                    <span
+                      class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                    >
+                      {{ getCardTypeLabel(card.type) }}
+                    </span>
+                  </div>
+                </div>
+                <!-- Action Dropdown -->
+                <div class="flex-shrink-0" (click)="$event.stopPropagation()">
+                  <app-action-dropdown
+                    [isOpen]="openDropdownCardNumber === card.number"
+                    [actions]="getCardActions(card)"
+                    [toggleStatus]="card.status"
+                    (toggleOpen)="toggleDropdown(card.number)"
+                    (actionClick)="onCardAction(card.number, $event)"
+                  ></app-action-dropdown>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Desktop: Table View -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Número
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Título
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Tipo
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (card of cards; track card.number) {
+                <tr class="hover:bg-gray-50 transition-colors" [class.bg-gray-50]="!card.status" [class.opacity-60]="!card.status">
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ card.number }}
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{ card.title }}
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800"
+                    >
+                      {{ getCardTypeLabel(card.type) }}
+                    </span>
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium"
+                      [class.bg-green-100]="card.status"
+                      [class.text-green-800]="card.status"
+                      [class.bg-red-100]="!card.status"
+                      [class.text-red-800]="!card.status"
+                    >
+                      {{ card.status ? 'Ativo' : 'Inativo' }}
+                    </span>
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <app-action-dropdown
+                      [isOpen]="openDropdownCardNumber === card.number"
+                      [actions]="getCardActions(card)"
+                      [toggleStatus]="card.status"
+                      (toggleOpen)="toggleDropdown(card.number)"
+                      (actionClick)="onCardAction(card.number, $event)"
+                    ></app-action-dropdown>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- Footer com paginação -->
+        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-t border-gray-200">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+              Mostrando {{ cards.length > 0 ? (currentPage * pageSize + 1) : 0 }} até
+              {{ currentPage * pageSize + cards.length }} de {{ totalElements }} cartão(ões)
+            </div>
+            <div class="flex items-center space-x-1 sm:space-x-2">
+              <!-- Botão Anterior -->
+              <button
+                (click)="previousPage()"
+                [disabled]="currentPage === 0"
+                class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+
+              <!-- Números de página -->
+              @if (totalPages > 0) {
+                @if (currentPage > 2 && totalPages > 5) {
+                  <button
+                    (click)="goToPage(0)"
+                    class="hidden sm:inline-flex px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                  >
+                    1
+                  </button>
+                  @if (currentPage > 3) {
+                    <span class="hidden sm:inline px-1 sm:px-2 text-gray-500">...</span>
+                  }
+                }
+
+                @for (page of getPageNumbers(); track page) {
+                  <button
+                    (click)="goToPage(page)"
+                    [class.bg-cyan-500]="page === currentPage"
+                    [class.text-white]="page === currentPage"
+                    [class.border-cyan-500]="page === currentPage"
+                    [class.text-gray-700]="page !== currentPage"
+                    [class.bg-white]="page !== currentPage"
+                    [class.border-gray-300]="page !== currentPage"
+                    class="px-2 sm:px-3 py-2 text-sm font-medium border rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors min-w-10 sm:min-w-0"
+                  >
+                    {{ page + 1 }}
+                  </button>
+                }
+
+                @if (currentPage < totalPages - 3 && totalPages > 5) {
+                  @if (currentPage < totalPages - 4) {
+                    <span class="hidden sm:inline px-1 sm:px-2 text-gray-500">...</span>
+                  }
+                  <button
+                    (click)="goToPage(totalPages - 1)"
+                    class="hidden sm:inline-flex px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                  >
+                    {{ totalPages }}
+                  </button>
+                }
+              }
+
+              <!-- Botão Próximo -->
+              <button
+                (click)="nextPage()"
+                [disabled]="currentPage >= totalPages - 1"
+                class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal de Confirmação Genérico -->
+  <app-confirm-modal
+    [isOpen]="showConfirmModal"
+    [title]="confirmModalTitle"
+    [message]="confirmModalMessage"
+    [danger]="confirmModalDanger"
+    confirmText="Confirmar"
+    cancelText="Cancelar"
+    (confirm)="onConfirmRemoveCard()"
+    (cancel)="onCancelConfirmModal()"
+  ></app-confirm-modal>
+</div>

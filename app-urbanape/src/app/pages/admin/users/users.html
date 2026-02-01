@@ -1,0 +1,474 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" (click)="closeDropdown()">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading) {
+    <!-- Header -->
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Usuários</h1>
+          <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Gerencie todos os usuários do sistema</p>
+        </div>
+        <button
+          (click)="goToRegister()"
+          class="inline-flex items-center justify-center px-4 py-2 bg-cyan-500 text-white text-sm font-medium rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors w-full sm:w-auto"
+        >
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <span class="hidden sm:inline">Cadastrar Novo</span>
+          <span class="sm:hidden">Novo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-4 sm:mb-6">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg
+            class="h-5 w-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Pesquisar por nome ou email..."
+          class="block w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all placeholder:font-thin placeholder:text-gray-400 text-sm sm:text-base"
+        />
+        @if (searchQuery) {
+          <button
+            (click)="clearSearch()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Limpar pesquisa"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      @if (users.length === 0) {
+        <div class="text-center py-12">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum usuário encontrado</h3>
+          <p class="mt-1 text-sm text-gray-500">Não há usuários cadastrados no sistema.</p>
+        </div>
+      } @else {
+        <!-- Mobile: Cards View -->
+        <div class="block md:hidden space-y-4 p-4">
+          @for (user of users; track user.id) {
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <div class="flex items-start justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-sm font-medium text-gray-500">#{{ user.id }}</span>
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                      [class.bg-blue-100]="user.role === 'ADMIN'"
+                      [class.text-blue-800]="user.role === 'ADMIN'"
+                      [class.bg-gray-100]="user.role === 'USER'"
+                      [class.text-gray-800]="user.role === 'USER'"
+                    >
+                      {{ getRoleLabel(user.role) }}
+                    </span>
+                  </div>
+                  <h3 class="text-base font-semibold text-gray-900 truncate">{{ user.name }}</h3>
+                  <p class="text-sm text-gray-600 truncate mt-1">{{ user.email }}</p>
+                </div>
+                <div class="relative ml-2" (click)="$event.stopPropagation()">
+                  <button
+                    type="button"
+                    [attr.data-user-dropdown-button]="user.id"
+                    (click)="toggleDropdown(user.id, $event)"
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                    [attr.aria-expanded]="openDropdownId === user.id"
+                    aria-haspopup="true"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                      />
+                    </svg>
+                  </button>
+
+                  @if (openDropdownId === user.id) {
+                    <div
+                      class="user-dropdown-menu w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      [style.top.px]="getDropdownPosition(user.id).top"
+                      [style.right.px]="getDropdownPosition(user.id).right"
+                      [style.position]="'fixed'"
+                      role="menu"
+                      aria-orientation="vertical"
+                      tabindex="-1"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <div class="py-1" role="none">
+                        <button
+                          (click)="editUser(user.id)"
+                          class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          role="menuitem"
+                        >
+                          <svg
+                            class="w-4 h-4 mr-3 text-cyan-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                          Editar
+                        </button>
+                        <button
+                          (click)="removeUser(user.id)"
+                          class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                          role="menuitem"
+                        >
+                          <svg
+                            class="w-4 h-4 mr-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Desktop: Table View -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  ID
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Nome
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Email
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Tipo
+                </th>
+                <th
+                  scope="col"
+                  class="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (user of users; track user.id) {
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    #{{ user.id }}
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{ user.name }}
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {{ user.email }}
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex w-30 items-center px-2.5 py-0.5 rounded-md text-xs font-medium justify-center"
+                      [class.bg-blue-100]="user.role === 'ADMIN'"
+                      [class.text-blue-800]="user.role === 'ADMIN'"
+                      [class.bg-gray-100]="user.role === 'USER'"
+                      [class.text-gray-800]="user.role === 'USER'"
+                    >
+                      {{ getRoleLabel(user.role) }}
+                    </span>
+                  </td>
+                  <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="relative inline-block text-left" (click)="$event.stopPropagation()">
+                      <button
+                        type="button"
+                        [attr.data-user-dropdown-button]="user.id"
+                        (click)="toggleDropdown(user.id, $event)"
+                        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                        [attr.aria-expanded]="openDropdownId === user.id"
+                        aria-haspopup="true"
+                      >
+                        <svg
+                          class="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                          />
+                        </svg>
+                      </button>
+
+                      @if (openDropdownId === user.id) {
+                        <div
+                          class="user-dropdown-menu w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                          [style.top.px]="getDropdownPosition(user.id).top"
+                          [style.right.px]="getDropdownPosition(user.id).right"
+                          [style.position]="'fixed'"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="menu-button"
+                          tabindex="-1"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <div class="py-1" role="none">
+                            <button
+                              (click)="editUser(user.id)"
+                              class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              role="menuitem"
+                            >
+                              <svg
+                                class="w-4 h-4 mr-3 text-cyan-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                              Editar
+                            </button>
+                            <button
+                              (click)="removeUser(user.id)"
+                              class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                              role="menuitem"
+                            >
+                              <svg
+                                class="w-4 h-4 mr-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                              Remover
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- Footer com paginação -->
+        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-t border-gray-200">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+              Mostrando {{ users.length > 0 ? (currentPage * pageSize + 1) : 0 }} até
+              {{ currentPage * pageSize + users.length }} de {{ totalElements }} usuário(s)
+            </div>
+            <div class="flex items-center space-x-1 sm:space-x-2">
+              <!-- Botão Anterior -->
+              <button
+                (click)="previousPage()"
+                [disabled]="currentPage === 0"
+                class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+
+              <!-- Números de página -->
+              @if (totalPages > 0) {
+                @if (currentPage > 2 && totalPages > 5) {
+                  <button
+                    (click)="goToPage(0)"
+                    class="hidden sm:inline-flex px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                  >
+                    1
+                  </button>
+                  @if (currentPage > 3) {
+                    <span class="hidden sm:inline px-1 sm:px-2 text-gray-500">...</span>
+                  }
+                }
+
+                @for (page of getPageNumbers(); track page) {
+                  <button
+                    (click)="goToPage(page)"
+                    [class.bg-cyan-500]="page === currentPage"
+                    [class.text-white]="page === currentPage"
+                    [class.border-cyan-500]="page === currentPage"
+                    [class.text-gray-700]="page !== currentPage"
+                    [class.bg-white]="page !== currentPage"
+                    [class.border-gray-300]="page !== currentPage"
+                    class="px-2 sm:px-3 py-2 text-sm font-medium border rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors min-w-10 sm:min-w-0"
+                  >
+                    {{ page + 1 }}
+                  </button>
+                }
+
+                @if (currentPage < totalPages - 3 && totalPages > 5) {
+                  @if (currentPage < totalPages - 4) {
+                    <span class="hidden sm:inline px-1 sm:px-2 text-gray-500">...</span>
+                  }
+                  <button
+                    (click)="goToPage(totalPages - 1)"
+                    class="hidden sm:inline-flex px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors"
+                  >
+                    {{ totalPages }}
+                  </button>
+                }
+              }
+
+              <!-- Botão Próximo -->
+              <button
+                (click)="nextPage()"
+                [disabled]="currentPage >= totalPages - 1"
+                class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal de Confirmação Genérico -->
+  <app-confirm-modal
+    [isOpen]="showConfirmModal"
+    [title]="confirmModalTitle"
+    [message]="confirmModalMessage"
+    [danger]="confirmModalDanger"
+    confirmText="Confirmar"
+    cancelText="Cancelar"
+    (confirm)="onConfirmRemoveUser()"
+    (cancel)="onCancelConfirmModal()"
+  ></app-confirm-modal>
+</div>
