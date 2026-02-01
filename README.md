@@ -36,7 +36,7 @@ desafio-tecnico-urbana-pe/
 - **Linguagem**: Java 21
 - **Banco de Dados**: PostgreSQL
 - **Autenticação**: JWT (Auth0)
-- **Arquitetura**: Domain-Driven Design (DDD)
+- **Arquitetura**: Em camadas (Controllers, Services, Repository e Entities)
 - **Documentação**: Swagger/OpenAPI
 
 ### Frontend (`app-urbanape/`)
