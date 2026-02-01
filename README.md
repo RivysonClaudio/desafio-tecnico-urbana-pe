@@ -329,7 +329,7 @@ Este projeto atende aos seguintes requisitos do desafio técnico:
 ## 🎓 Destaques Técnicos
 
 ### Backend
-- Arquitetura DDD com separação clara de domínios
+- Arquitetura em camadas com separação clara de domínios
 - Uso de NativeQuery para consultas complexas
 - Validação robusta com Bean Validation
 - Tratamento global de exceções
@@ -363,18 +363,6 @@ Para dúvidas ou problemas:
 2. Verifique a documentação Swagger: `http://localhost:8080/swagger-ui.html`
 
 3. Consulte a collection do Postman: `api-urbanape/src/main/resources/static/API_Urbanape.postman_collection.json`
-
-## 🎯 Próximos Passos (Melhorias Futuras)
-
-- [ ] Implementar refresh token
-- [ ] Adicionar cache (Redis)
-- [ ] Implementar rate limiting
-- [ ] Adicionar logs estruturados
-- [ ] Configurar CI/CD
-- [ ] Separar em microserviços
-- [ ] Implementar testes E2E
-- [ ] Adicionar internacionalização (i18n)
-- [ ] Implementar dark mode
 
 ## 📄 Licença
 
